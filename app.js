@@ -24,8 +24,12 @@ mongoose.connect(config.MONGODB_URI)
 app.use(cors())
 app.use(express.static('dist'))
 app.use(express.json())
-// Add payload data to morgan middleware
-app.use(morgan('tiny'))
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'))
+} else {
+  app.use(morgan('tiny'))
+}
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
