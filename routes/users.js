@@ -2,7 +2,7 @@ require('express-async-errors')
 const usersRouter = require('express').Router()
 const userService = require('../services/userService')
 
-usersRouter.get('/', async (req, res) => {
+usersRouter.get('/', async (_req, res) => {
   const users = await userService.getUsers()
   res.status(200).json(users)
 })

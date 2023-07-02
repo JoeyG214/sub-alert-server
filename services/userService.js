@@ -11,15 +11,15 @@ const getUsers = async () => {
 
 const createUser = async (username, password) => {
   if (!username || username.length < 5) {
-    throw new Error('Must provided username with atleast 5 characters.')
+    throw new Error('Must provide username with atleast 5 characters')
   }
   if (!password || password.length < 5) {
-    throw new Error('Must provide password with atleast 5 characters.')
+    throw new Error('Must provide password with atleast 5 characters')
   }
 
   const existingUser = await User.findOne({ username })
   if (existingUser) {
-    throw new Error('username must be unique')
+    throw new Error('Username must be unique')
   }
 
   const saltRounds = 10
