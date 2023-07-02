@@ -8,11 +8,7 @@ const authenticate = async ({ username, password }) => {
 
   let passwordCorrect = false
   if (user !== null) {
-    try {
-      passwordCorrect = await bcrypt.compare(password, user.passwordHash)
-    } catch (e) {
-      throw new Error('bcrypt error')
-    }
+    passwordCorrect = await bcrypt.compare(password, user.passwordHash)
   }
 
   if (!(user && passwordCorrect)) {

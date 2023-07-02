@@ -1,13 +1,10 @@
+require('express-async-errors')
 const loginRouter = require('express').Router()
 const authService = require('../services/loginService')
 
-loginRouter.post('/', async (request, response) => {
-  try {
-    const result = await authService.authenticate(request.body)
-    response.status(200).send(result)
-  } catch (error) {
-    response.status(403).json({ error: error.message })
-  }
+loginRouter.post('/', async (req, res) => {
+  const result = await authService.authenticate(req.body)
+  res.status(200).send(result)
 })
 
 module.exports = loginRouter
