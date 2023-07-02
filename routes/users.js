@@ -1,14 +1,10 @@
 require('express-async-errors')
 const usersRouter = require('express').Router()
-const User = require('../models/user')
 const userService = require('../services/userService')
 
 usersRouter.get('/', async (req, res) => {
-  const users = await User
-    .find({})
-    .populate('subscriptions', { name: 1, price: 1, billingPeriod: 1 })
-
-  res.json(users)
+  const users = await userService.getUsers()
+  res.status(200).json(users)
 })
 
 usersRouter.post('/', async (req, res) => {

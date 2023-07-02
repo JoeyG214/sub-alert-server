@@ -1,6 +1,14 @@
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
 
+const getUsers = async () => {
+  const users = await User
+    .find({})
+    .populate('subscriptions', { name: 1, price: 1, billingPeriod: 1 })
+
+  return users
+}
+
 const createUser = async (username, password) => {
   if (!username || username.length < 5) {
     throw new Error('Must provided username with atleast 5 characters.')
@@ -27,4 +35,4 @@ const createUser = async (username, password) => {
   return savedUser
 }
 
-module.exports = { createUser }
+module.exports = { getUsers, createUser }
