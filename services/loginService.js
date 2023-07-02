@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const config = require('../utils/config')
 
-const authenticate = async ({ username, password }) => {
+const authenticate = async (username, password) => {
   const user = await User.findOne({ username })
 
   let passwordCorrect = false
@@ -23,7 +23,7 @@ const authenticate = async ({ username, password }) => {
   // Token expires in 60 minutes
   const token = jwt.sign(userForToken, config.SECRET, { expiresIn: 60 * 60 })
 
-  return { token, username: user.username, name: user.name }
+  return { token, username: user.username }
 }
 
 module.exports = { authenticate }
