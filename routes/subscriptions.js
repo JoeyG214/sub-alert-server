@@ -1,59 +1,35 @@
+require('express-async-errors')
 const subscriptionsRouter = require('express').Router()
-const Subscription = require('../models/subscription')
-const { userExtractor } = require('../utils/middleware')
+const { userExtractor, checkSubscriptionFields } = require('../utils/middleware')
+const {
+  getAllSubscriptionsByUser,
+  createSubscriptionForUser,
+  updateSubscriptionForUser,
+  deleteSubscriptionForUser,
+} = require('../services/subscriptionService')
 
 subscriptionsRouter.get('/', userExtractor, async (req, res) => {
   const user = req.user
-
-  const subscriptions = await Subscription
-    .find({ user: user.id })
-    .populate('user', { username: 1 })
-
+  const subscriptions = await getAllSubscriptionsByUser(user.id)
   res.status(200).json(subscriptions)
 })
 
-subscriptionsRouter.post('/', userExtractor, async (req, res) => {
+subscriptionsRouter.post('/', userExtractor, checkSubscriptionFields, async (req, res) => {
   const user = req.user
   const { name, price, billingPeriod } = req.body
 
-  if (!name || !price || !billingPeriod) {
-    throw new Error('Subscription information is missing data')
-  }
-
-  const subscription = new Subscription({
-    name,
-    price,
-    billingPeriod,
-    user: user.id,
-  })
-
-  const savedSubscription = await subscription.save()
+  const savedSubscription = await createSubscriptionForUser(user.id, { name, price, billingPeriod })
   user.subscriptions = user.subscriptions.concat(savedSubscription.id)
   await user.save()
-
   res.status(201).json(savedSubscription)
 })
 
-subscriptionsRouter.put('/:id', userExtractor, async (req, res) => {
+subscriptionsRouter.put('/:id', userExtractor, checkSubscriptionFields, async (req, res) => {
   const user = req.user
   const { id } = req.params
   const { name, price, billingPeriod } = req.body
 
-  if (!name || !price || !billingPeriod) {
-    throw new Error('Subscription information is missing data')
-  }
-
-  const subscription = await Subscription.findById(id)
-
-  if (!subscription) {
-    throw new Error('Subscription not found')
-  }
-
-  if (subscription.user.toString() !== user.id.toString()) {
-    throw new Error('Not authorized to update this subscription')
-  }
-
-  const updatedSubscription = await Subscription.findByIdAndUpdate(id, { name, price, billingPeriod }, { new: true })
+  const updatedSubscription = await updateSubscriptionForUser(user.id, id, { name, price, billingPeriod })
   res.status(200).json(updatedSubscription)
 })
 
@@ -61,16 +37,6 @@ subscriptionsRouter.delete('/:id', userExtractor, async (req, res) => {
   const user = req.user
   const { id } = req.params
 
-  const subscription = await Subscription.findById(id)
-
-  if (!subscription) {
-    throw new Error('Subscription not found')
-  }
-
-  if (subscription.user.toString() !== user.id.toString()) {
-    throw new Error('Not authorized to delete this subscription')
-  }
-
-  await Subscription.findByIdAndDelete(id)
+  await deleteSubscriptionForUser(user.id, id)
   res.status(204).end()
 })
