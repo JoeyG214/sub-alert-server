@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
+
 const unknownEndpoint = (_req, res) => {
   res.status(404).send({ error: 'unknown endpoint' })
 }
@@ -6,6 +9,30 @@ const tokenExtractor = (req, _res, next) => {
   const authorization = req.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     req.token = authorization.substring(7)
+  }
+
+  next()
+}
+
+const userExtractor = async (req, _res, next) => {
+  const token = req.token
+
+  if (!token) {
+    throw new Error('Token Missing')
+  }
+
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+
+  if (!decodedToken.id) {
+    throw new Error('Token Invalid')
+  }
+
+  const user = await User.findById(decodedToken.id)
+
+  if (!user) {
+    throw new Error('User not found')
+  } else {
+    req.user = user
   }
 
   next()
@@ -30,6 +57,12 @@ const errorHandler = (error, _req, res, next) => {
     return res.status(400).json({ error: 'Passoword must be minimum 5 characters' })
   } else if (error.message === 'Username must be unique') {
     return res.status(400).json({ error: 'Username already taken' })
+  } else if (error.message === 'Token Missing') {
+    return res.status(400).json({ error: 'Could not find token' })
+  } else if (error.message === 'Token Invalid') {
+    return res.status(400).json({ error: 'Token provided is invalid' })
+  } else if (error.message === 'User not found') {
+    return res.status(400).json({ error: 'Could not find user' })
   } else {
     return res.status(500).json({ error: 'Something went wrong' })
   }
@@ -37,6 +70,7 @@ const errorHandler = (error, _req, res, next) => {
 
 module.exports = {
   unknownEndpoint,
-  errorHandler,
   tokenExtractor,
+  userExtractor,
+  errorHandler,
 }
