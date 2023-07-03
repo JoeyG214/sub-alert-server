@@ -64,6 +64,10 @@ const errorHandler = (error, _req, res, next) => {
     return res.status(400).json({ error: 'Token provided is invalid' })
   } else if (error.message === 'User not found') {
     return res.status(400).json({ error: 'Could not find user' })
+  } else if (error.message === 'Token is missing or invalid') {
+    return res.status(401).json({ error: 'Could not add subscription: Token missing or invalid' })
+  } else if (error.message === 'Subscription information is missing data') {
+    return res.status(400).json({ error: 'Fill out all subscription fields' })
   } else {
     return res.status(500).json({ error: 'Something went wrong' })
   }
