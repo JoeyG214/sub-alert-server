@@ -3,7 +3,12 @@ const Subscription = require('../models/subscription')
 const { userExtractor } = require('../utils/middleware')
 
 subscriptionsRouter.get('/', userExtractor, async (req, res) => {
+  const token = req.token
   const user = req.user
+
+  if (!user || !token) {
+    throw new Error('Token is missing or invalid')
+  }
 
   const subscriptions = await Subscription
     .find({ user: user.id })
