@@ -66,6 +66,12 @@ const errorHandler = (error, _req, res, next) => {
     return res.status(400).json({ error: 'Could not find user' })
   } else if (error.message === 'Subscription information is missing data') {
     return res.status(400).json({ error: 'Fill out all subscription fields' })
+  } else if (error.message === 'Subscription not found') {
+    return res.status(404).json({ error: 'Subscription not found' })
+  } else if (error.message === 'Not authorized to update this subscription') {
+    return res.status(403).json({ error: 'You are not authorized to update this subscription' })
+  } else if (error.message === 'Not authorized to delete this subscription') {
+    return res.status(403).json({ error: 'You are not authorized to delete this subscription' })
   } else {
     return res.status(500).json({ error: 'Something went wrong' })
   }
