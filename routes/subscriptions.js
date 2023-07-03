@@ -39,6 +39,30 @@ subscriptionsRouter.post('/', userExtractor, async (req, res) => {
   res.status(201).json(savedSubscription)
 })
 
+subscriptionsRouter.put('/:id', userExtractor, async (req, res) => {
+  const token = req.token
+  const user = req.user
+  const { id } = req.params
+  const { name, price, billingPeriod } = req.body
+
+  if (!user || !token) {
+    throw new Error('Token is missing or invalid')
+  }
+
+  if (!name || !price || !billingPeriod) {
+    throw new Error('Subscription information is missing data')
+  }
+
+  const subscription = {
+    name,
+    price,
+    billingPeriod,
+  }
+
+  const updatedSubscription = Subscription.findByIdAndUpdate(id, subscription, { new: true })
+  res.status(200).json(updatedSubscription)
+})
+
 subscriptionsRouter.delete('/:id', userExtractor, async (req, res) => {
   const token = req.token
   const user = req.user
