@@ -39,6 +39,14 @@ const userExtractor = async (req, _res, next) => {
   next()
 }
 
+const checkSubscriptionFields = (req, _res, next) => {
+  const { name, price, billingPeriod } = req.body
+  if (!name || !price || !billingPeriod) {
+    throw new Error('Subscription information is missing data')
+  }
+  next()
+}
+
 const errorHandler = (error, _req, res, next) => {
   if (error.name === 'CastError') {
     return res.status(400).json({ error: 'Malformatted ID' })
@@ -81,5 +89,6 @@ module.exports = {
   unknownEndpoint,
   tokenExtractor,
   userExtractor,
+  checkSubscriptionFields,
   errorHandler,
 }
