@@ -31,6 +31,8 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('tiny'))
 }
 
+app.use(middleware.tokenExtractor)
+
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
