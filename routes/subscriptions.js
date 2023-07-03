@@ -3,12 +3,7 @@ const Subscription = require('../models/subscription')
 const { userExtractor } = require('../utils/middleware')
 
 subscriptionsRouter.get('/', userExtractor, async (req, res) => {
-  const token = req.token
   const user = req.user
-
-  if (!user || !token) {
-    throw new Error('Token is missing or invalid')
-  }
 
   const subscriptions = await Subscription
     .find({ user: user.id })
@@ -18,13 +13,8 @@ subscriptionsRouter.get('/', userExtractor, async (req, res) => {
 })
 
 subscriptionsRouter.post('/', userExtractor, async (req, res) => {
-  const token = req.token
   const user = req.user
   const { name, price, billingPeriod } = req.body
-
-  if (!user || !token) {
-    throw new Error('Token is missing or invalid')
-  }
 
   if (!name || !price || !billingPeriod) {
     throw new Error('Subscription information is missing data')
@@ -45,26 +35,25 @@ subscriptionsRouter.post('/', userExtractor, async (req, res) => {
 })
 
 subscriptionsRouter.put('/:id', userExtractor, async (req, res) => {
-  const token = req.token
   const user = req.user
   const { id } = req.params
   const { name, price, billingPeriod } = req.body
-
-  if (!user || !token) {
-    throw new Error('Token is missing or invalid')
-  }
 
   if (!name || !price || !billingPeriod) {
     throw new Error('Subscription information is missing data')
   }
 
-  const subscription = {
-    name,
-    price,
-    billingPeriod,
+  const subscription = await Subscription.findById(id)
+
+  if (!subscription) {
+    throw new Error('Subscription not found')
   }
 
-  const updatedSubscription = Subscription.findByIdAndUpdate(id, subscription, { new: true })
+  if (subscription.user.toString() !== user.id.toString()) {
+    throw new Error('Not authorized to update this subscription')
+  }
+
+  const updatedSubscription = await Subscription.findByIdAndUpdate(id, { name, price, billingPeriod }, { new: true })
   res.status(200).json(updatedSubscription)
 })
 
@@ -72,10 +61,6 @@ subscriptionsRouter.delete('/:id', userExtractor, async (req, res) => {
   const token = req.token
   const user = req.user
   const { id } = req.params
-
-  if (!user || !token) {
-    throw new Error('Token is missing or invalid')
-  }
 
   await Subscription.findByIdAndDelete(id)
   res.status(204).end()
