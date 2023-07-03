@@ -58,9 +58,18 @@ subscriptionsRouter.put('/:id', userExtractor, async (req, res) => {
 })
 
 subscriptionsRouter.delete('/:id', userExtractor, async (req, res) => {
-  const token = req.token
   const user = req.user
   const { id } = req.params
+
+  const subscription = await Subscription.findById(id)
+
+  if (!subscription) {
+    throw new Error('Subscription not found')
+  }
+
+  if (subscription.user.toString() !== user.id.toString()) {
+    throw new Error('Not authorized to delete this subscription')
+  }
 
   await Subscription.findByIdAndDelete(id)
   res.status(204).end()
