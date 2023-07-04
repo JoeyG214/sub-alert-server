@@ -40,3 +40,5 @@ subscriptionsRouter.delete('/:id', userExtractor, async (req, res) => {
   await deleteSubscriptionForUser(user.id, id)
   res.status(204).end()
 })
+
+module.exports = subscriptionsRouter
