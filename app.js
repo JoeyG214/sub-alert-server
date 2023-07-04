@@ -6,6 +6,10 @@ const middleware = require('./utils/middleware')
 const mongoose = require('mongoose')
 const morgan = require('morgan')
 
+const loginRouter = require('./routes/login')
+const usersRouter = require('./routes/users')
+const subscriptionsRouter = require('./routes/subscriptions')
+
 const app = express()
 
 require('express-async-errors')
@@ -32,6 +36,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(middleware.tokenExtractor)
+
+app.use('/api/login', loginRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/subscriptions', subscriptionsRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
