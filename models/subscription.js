@@ -7,7 +7,6 @@ const subscriptionSchema = new Schema({
     type: String,
     required: [true, 'A name is required. Enter a name'],
     minlength: [5, 'Name must be at least 5 characters long'],
-    unique: [true, 'Name must be unique, this name is already taken'],
   },
   price: {
     type: Number,
